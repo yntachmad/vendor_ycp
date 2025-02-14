@@ -17,18 +17,26 @@ class SubClasificationSeeder extends Seeder
         DB::table('sub_clasifications')->insert([
             'clasification_id' => 1,
             'clasification' => 'Waste Management',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
         DB::table('sub_clasifications')->insert([
             'clasification_id' => 1,
             'clasification' => 'Stationary',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
         DB::table('sub_clasifications')->insert([
             'clasification_id' => 2,
             'clasification' => 'Branding material',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
         DB::table('sub_clasifications')->insert([
             'clasification_id' => 2,
             'clasification' => 'Agency',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 }

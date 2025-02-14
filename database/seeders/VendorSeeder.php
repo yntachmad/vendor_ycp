@@ -33,6 +33,8 @@ class VendorSeeder extends Seeder
             'tax_register' => 'no',
             'Terms_condition' => 'no',
             'typebank_id' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 }

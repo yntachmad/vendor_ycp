@@ -16,6 +16,8 @@ class ProvinceSeeder extends Seeder
         //
         DB::table('provinces')->insert([
             'province' => 'DKI Jakarta',
+            'created_at' => now(),
+            'updated_at' => now(),
 
         ]);
     }

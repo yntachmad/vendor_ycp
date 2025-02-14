@@ -17,6 +17,8 @@ class CitySeeder extends Seeder
         DB::table('cities')->insert([
             'province_id' => 1,
             'city' => 'Jakarta Barat',
+            'created_at' => now(),
+            'updated_at' => now(),
 
         ]);
     }

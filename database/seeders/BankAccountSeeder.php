@@ -16,14 +16,20 @@ class BankAccountSeeder extends Seeder
         //
         DB::table('bank_accounts')->insert([
             'bankType' => 'No Information',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         DB::table('bank_accounts')->insert([
             'bankType' => 'Commercial',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         DB::table('bank_accounts')->insert([
             'bankType' => 'Personal',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
     }
 }
