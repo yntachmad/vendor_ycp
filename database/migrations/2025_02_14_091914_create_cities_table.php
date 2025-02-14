@@ -10,9 +10,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('bank_accounts', function (Blueprint $table) {
+        Schema::create('cities', function (Blueprint $table) {
             $table->id();
-            $table->string('bankType');
+            $table->foreignId('province_id')->nullable()->constrained('provinces')->onDelete('set null');
+            $table->string('city');
             $table->timestamps();
         });
     }
@@ -22,6 +23,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('bank_accounts');
+        Schema::dropIfExists('cities');
     }
 };
