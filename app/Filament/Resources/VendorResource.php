@@ -11,14 +11,16 @@ use Filament\Forms\Set;
 use App\Models\Category;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use App\Models\Clasification;
+use App\Models\TypeCompany;
 
+use App\Models\Clasification;
 use App\Models\SubClasification;
 use Filament\Resources\Resource;
+
 use Filament\Forms\Components\Select;
 
+use Filament\Forms\Components\Section;
 use Illuminate\Database\Eloquent\Builder;
-
 use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Resources\VendorResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -38,6 +40,47 @@ class VendorResource extends Resource
     {
         return $form
             ->schema([
+                Section::make('Company Profile')
+                    ->columns([
+                        'sm' => 4,
+                        'xl' => 4,
+                        '2xl' => 8,
+                    ])
+                    // ->description('Prevent abuse by limiting the number of requests per period')
+                    ->icon('heroicon-o-users')
+                    ->schema([
+                        Select::make('typeCompany_id')
+                            ->required()
+                            ->label('Type of Company')
+                            ->options(TypeCompany::all()->pluck('companyType', 'id'))
+                            ->searchable()->columns(4),
+                        Forms\Components\TextInput::make('supplier_name')->required()->maxLength(255)->columns(6),
+                        Forms\Components\Textarea::make('description')
+                            ->required()
+                            ->columnSpanFull(),
+                        Forms\Components\TextInput::make('contact_person')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('contact_phone')
+                            ->tel()
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('contact_email')
+                            ->email()
+                            ->maxLength(255),
+                        Forms\Components\Textarea::make('address')
+                            ->required()
+                            ->columnSpanFull(),
+                        Forms\Components\TextInput::make('province_id')
+                            ->numeric(),
+                        Forms\Components\TextInput::make('city_id')
+                            ->numeric(),
+                        Forms\Components\TextInput::make('website')
+                            ->maxLength(255),
+                    ])->compact(),
+
+
+
                 Select::make('group_id')
                     ->label('Group')
                     ->options(Group::all()->pluck('group', 'id'))
@@ -61,33 +104,12 @@ class VendorResource extends Resource
                     ->live(),
 
 
-                Forms\Components\Textarea::make('description')
-                    ->required()
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('typeCompany_id')
-                    ->numeric(),
-                Forms\Components\TextInput::make('supplier_name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('contact_person')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('contact_phone')
-                    ->tel()
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('contact_email')
-                    ->email()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('website')
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('address')
-                    ->required()
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('province_id')
-                    ->numeric(),
-                Forms\Components\TextInput::make('city_id')
-                    ->numeric(),
+
+
+
+
+
+
                 Forms\Components\TextInput::make('legal_document')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('tax_register')
