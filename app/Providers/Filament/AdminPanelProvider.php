@@ -53,6 +53,13 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->navigationGroups([
+                'Users',
+                'Master Data',
+            ])
+            ->sidebarCollapsibleOnDesktop();
+
+
     }
 }

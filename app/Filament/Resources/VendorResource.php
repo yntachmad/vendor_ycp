@@ -2,35 +2,65 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\VendorResource\Pages;
-use App\Filament\Resources\VendorResource\RelationManagers;
-use App\Models\Vendor;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Group;
+use App\Models\Vendor;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
+use App\Models\Category;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Clasification;
+
+use App\Models\SubClasification;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
+
 use Illuminate\Database\Eloquent\Builder;
+
+use Illuminate\Database\Eloquent\Collection;
+use App\Filament\Resources\VendorResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\VendorResource\RelationManagers;
 
 class VendorResource extends Resource
 {
     protected static ?string $model = Vendor::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
+
+    protected static ?int $navigationSort = 1;
+
+
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('group_id')
-                    ->numeric(),
-                Forms\Components\TextInput::make('category_id')
-                    ->numeric(),
-                Forms\Components\TextInput::make('clasification_id')
-                    ->numeric(),
-                Forms\Components\TextInput::make('subClasification_id')
-                    ->numeric(),
+                Select::make('group_id')
+                    ->label('Group')
+                    ->options(Group::all()->pluck('group', 'id'))
+                    ->searchable(),
+                Select::make('category_id')
+                    ->label('Category')
+                    ->options(Category::all()->pluck('category', 'id'))
+                    ->searchable(),
+                Select::make('clasification_id')
+                    ->label('Clasification')
+                    ->options(Clasification::all()->pluck('clasification', 'id'))
+                    ->searchable()
+                    ->live()
+                    ->afterStateUpdated(fn(Set $set) => $set('subClasification_id', null)),
+
+                Select::make('subClasification_id')
+                    ->label('Clasification')
+                    ->options(fn(Get $get) => SubClasification::where('clasification_id', $get('clasification_id'))->pluck('clasification', 'id'))
+                    ->searchable()
+                    ->preload()
+                    ->live(),
+
+
                 Forms\Components\Textarea::make('description')
                     ->required()
                     ->columnSpanFull(),
@@ -73,19 +103,19 @@ class VendorResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('group_id')
+                Tables\Columns\TextColumn::make('group.group')
+                    ->numeric()
+                    ->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('category.category')
+                    ->numeric()
+                    ->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('clasification.clasification')
+                    ->numeric()
+                    ->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('subClasification.clasification')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('category_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('clasification_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('subClasification_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('typeCompany_id')
+                Tables\Columns\TextColumn::make('typeCompany.companyType')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('supplier_name')

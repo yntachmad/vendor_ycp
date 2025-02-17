@@ -19,6 +19,10 @@ class SubClasificationResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Master Data';
+
+
+
     public static function form(Form $form): Form
     {
         return $form
@@ -35,9 +39,9 @@ class SubClasificationResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('clasification_id')
+                Tables\Columns\TextColumn::make('class.clasification')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()->searchable(),
                 Tables\Columns\TextColumn::make('clasification')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
