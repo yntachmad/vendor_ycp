@@ -141,7 +141,8 @@ class VendorResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('supplier_name')
-                    ->searchable(),
+                    ->searchable()
+                    ->description(fn (Vendor $record): string => $record->typeCompany->companyType),
                 Tables\Columns\TextColumn::make('contact_person')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('contact_phone')
