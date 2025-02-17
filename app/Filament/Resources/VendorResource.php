@@ -125,24 +125,27 @@ class VendorResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('supplier_name')
+                ->searchable()
+                ->sortable()
+                ->description(fn (Vendor $record): string => $record->typeCompany->companyType),
+                Tables\Columns\TextColumn::make('clasification.clasification')
+                    ->numeric()
+                    ->sortable()->searchable(),
                 Tables\Columns\TextColumn::make('group.group')
                     ->numeric()
                     ->sortable()->searchable(),
                 Tables\Columns\TextColumn::make('category.category')
                     ->numeric()
                     ->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('clasification.clasification')
-                    ->numeric()
-                    ->sortable()->searchable(),
+
                 Tables\Columns\TextColumn::make('subClasification.clasification')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('typeCompany.companyType')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('supplier_name')
-                    ->searchable()
-                    ->description(fn (Vendor $record): string => $record->typeCompany->companyType),
+
                 Tables\Columns\TextColumn::make('contact_person')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('contact_phone')
