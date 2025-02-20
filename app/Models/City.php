@@ -8,4 +8,9 @@ class City extends Model
 {
     //
     protected $guarded = [];
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class, 'province_id', 'id');
+    }
 }

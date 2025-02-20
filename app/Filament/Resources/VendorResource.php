@@ -2,25 +2,40 @@
 
 namespace App\Filament\Resources;
 
+use Wizard\Step;
 use Filament\Forms;
+use App\Models\City;
 use Filament\Tables;
 use App\Models\Group;
 use App\Models\Vendor;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use App\Models\Category;
+use App\Models\Province;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use App\Models\TypeCompany;
+use App\Models\BankAccount;
 
+use App\Models\TypeCompany;
 use App\Models\Clasification;
 use App\Models\SubClasification;
+
+use Filament\Infolists\Infolist;
+
 use Filament\Resources\Resource;
-
+use Illuminate\Support\HtmlString;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
-
+use Filament\Forms\Components\Wizard;
+use Illuminate\Support\Facades\Blade;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Fieldset;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Resources\VendorResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -34,153 +49,121 @@ class VendorResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    public static ?string $modelLabel = 'Supplier';
 
 
-    public static function form(Form $form): Form
-    {
+    public static function form(
+        Form $form
+    ): Form {
         return $form
             ->schema([
-                Section::make('Company Profile')
-                    ->columns([
-                        'sm' => 4,
-                        'xl' => 4,
-                        '2xl' => 8,
-                    ])
-                    // ->description('Prevent abuse by limiting the number of requests per period')
-                    ->icon('heroicon-o-users')
-                    ->schema([
-                        Select::make('typeCompany_id')
-                            ->required()
-                            ->label('Type of Company')
-                            ->options(TypeCompany::all()->pluck('companyType', 'id'))
-                            ->searchable()->columns(4),
-                        Forms\Components\TextInput::make('supplier_name')->required()->maxLength(255)->columns(6),
-                        Forms\Components\Textarea::make('description')
-                            ->required()
-                            ->columnSpanFull(),
-                        Forms\Components\TextInput::make('contact_person')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('contact_phone')
-                            ->tel()
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('contact_email')
-                            ->email()
-                            ->maxLength(255),
-                        Forms\Components\Textarea::make('address')
-                            ->required()
-                            ->columnSpanFull(),
-                        Forms\Components\TextInput::make('province_id')
-                            ->numeric(),
-                        Forms\Components\TextInput::make('city_id')
-                            ->numeric(),
-                        Forms\Components\TextInput::make('website')
-                            ->maxLength(255),
-                    ])->compact(),
 
-
-
-                Select::make('group_id')
-                    ->label('Group')
-                    ->options(Group::all()->pluck('group', 'id'))
-                    ->searchable(),
-                Select::make('category_id')
-                    ->label('Category')
-                    ->options(Category::all()->pluck('category', 'id'))
-                    ->searchable(),
-                Select::make('clasification_id')
-                    ->label('Clasification')
-                    ->options(Clasification::all()->pluck('clasification', 'id'))
-                    ->searchable()
-                    ->live()
-                    ->afterStateUpdated(fn(Set $set) => $set('subClasification_id', null)),
-
-                Select::make('subClasification_id')
-                    ->label('Clasification')
-                    ->options(fn(Get $get) => SubClasification::where('clasification_id', $get('clasification_id'))->pluck('clasification', 'id'))
-                    ->searchable()
-                    ->preload()
-                    ->live(),
-
-
-
-
-
-
-
-
-                Forms\Components\TextInput::make('legal_document')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('tax_register')
-                    ->required(),
-                Forms\Components\TextInput::make('Terms_condition')
-                    ->required(),
-                Forms\Components\TextInput::make('typebank_id')
-                    ->numeric(),
             ]);
     }
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->getResource()::getUrl('view');
+    // }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('supplier_name')
-                ->searchable()
-                ->sortable()
-                ->description(fn (Vendor $record): string => $record->typeCompany->companyType),
+                    ->label('Name')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn(Vendor $record): string => $record->typeCompany->companyType),
                 Tables\Columns\TextColumn::make('clasification.clasification')
-                    ->numeric()
-                    ->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('group.group')
-                    ->numeric()
-                    ->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('category.category')
+                    ->label('Services')
                     ->numeric()
                     ->sortable()->searchable(),
 
+
                 Tables\Columns\TextColumn::make('subClasification.clasification')
+                    ->label('Sub Services')
+                    // ->visible(false)
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('typeCompany.companyType')
+                    ->visible(false)
                     ->numeric()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('contact_person')
-                    ->searchable(),
+                    // ->visible(false)
+                    ->toggleable(isToggledHiddenByDefault: true),
+                // ->searchable(),
+
+                Tables\Columns\TextColumn::make('province.province')
+                    ->searchable()
+                    // ->description(fn(Vendor $record): string => $record->city->city)
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('city.city')
+                    // ->visible(false)
+                    ->numeric()
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('group.group')
+
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->numeric()
+                    ->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('category.category')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->numeric()
+                    ->sortable()->searchable(),
                 Tables\Columns\TextColumn::make('contact_phone')
-                    ->searchable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('contact_email')
-                    ->searchable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('website')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('province_id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('city_id')
-                    ->numeric()
-                    ->sortable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('legal_document')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tax_register'),
-                Tables\Columns\TextColumn::make('Terms_condition'),
+                Tables\Columns\TextColumn::make('tax_register')->visible(false),
+                Tables\Columns\TextColumn::make('Terms_condition')->visible(false),
                 Tables\Columns\TextColumn::make('typebank_id')
+                    ->visible(false)
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->visible(false)
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->visible(false)
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            // ->recordUrl(
+            //     fn(Model $record): string => Pages\ViewVendor::getUrl([$record->id]),
+            // )
+            ->recordUrl(
+                null,
+            )
             ->filters([
                 //
+                SelectFilter::make('typeCompany_id')
+                    ->options(TypeCompany::all()->pluck('companyType', 'id'))
+                    ->label('Type of Company'),
+                SelectFilter::make('typeCompany_id')
+                    ->options(TypeCompany::all()->pluck('companyType', 'id'))
+                    ->label('Type of Company'),
             ])
             ->actions([
+                // Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                // Tables\Actions\Action::make('View Information')
+                //     // This is the important part!
+                //     ->infolist([
+                //         TextEntry::make('title')
+                //     ])
+                //     ->slideOver(),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -202,6 +185,15 @@ class VendorResource extends Resource
             'index' => Pages\ListVendors::route('/'),
             'create' => Pages\CreateVendor::route('/create'),
             'edit' => Pages\EditVendor::route('/{record}/edit'),
+            'view' => Pages\ViewVendor::route('/{record}'),
         ];
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                TextEntry::make('supplier_name')
+            ]);
     }
 }
